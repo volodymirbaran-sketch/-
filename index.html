@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <title>Car Container Tycoon</title>
+  <style>
+    * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: system-ui, -apple-system, sans-serif; background: #000; color: #fff; }
+    
+    #canvas-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+    
+    /* UI Overlay */
+    .ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+    .interactive { pointer-events: auto; }
+    
+    /* HUD */
+    .hud-top { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.75); padding: 10px 20px; border-radius: 25px; border: 2px solid #4caf50; font-size: 20px; font-weight: bold; color: #4caf50; display: flex; align-items: center; gap: 8px; }
+    
+    /* Menus */
+    .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 15, 25, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 20; }
+    .hidden { display: none !important; }
+    
+    h1 { font-size: 2.5rem; margin-bottom: 30px; text-align: center; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+    .btn { background: #3b82f6; color: white; border: none; padding: 15px 40px; margin: 10px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: 0.1s; }
+    .btn:active { transform: scale(0.96); }
+    .btn-green { background: #10b981; }
+    .btn-red { background: #ef4444; }
+    .btn-gray { background: #6b7280; }
+    
+    /* Garage Window */
+    .garage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; width: 85%; max-height: 60vh; overflow-y: auto; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 15px; }
+    .car-card { background: #1e293b; border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #334155; }
+    
+    /* Modal Popups */
+    .modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e1b4b; border: 2px solid #6366f1; border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; z-index: 30; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+    
+    /* Controls for Mobile */
+    .controls { position: absolute; bottom: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: flex-end; z-index: 15; }
+    .joystick-zone { width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 60px; position: relative; border: 2px solid rgba(255,255,255,0.2); }
+    .joystick-stick { width: 50px; height: 50px; background: rgba(255,255,255,0.5); border-radius: 25px; position: absolute; top: 35px; left: 35px; }
+    .action-btns { display: flex; gap: 15px; }
+    .round-btn { width: 70px; height: 70px; border-radius: 35px; background: rgba(255,255,255,0.2); border: 2px solid #fff; color: white; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+  </style>
+  <!-- Three.js for 3D Graphics -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <div id="canvas-container"></div>
+
+  <div class="ui-layer">
+    <!-- Balance -->
+    <div class="hud-top interactive">
+      <span>💰</span> <span id="balance-display">150 000 ₴</span>
+    </div>
+
+    <!-- Mobile Touch Controls -->
+    <div class="controls hidden" id="game-controls">
+      <div class="joystick-zone interactive" id="joystick">
+        <div class="joystick-stick" id="stick"></div>
+      </div>
+      <div class="action-btns">
+        <div class="round-btn interactive" id="btn-jump">JUMP</div>
+        <div class="round-btn interactive" id="btn-action" style="background:#10b981;">ACTION</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN MENU -->
+  <div class="screen interactive" id="menu-screen">
+    <h1 id="txt-title">CAR CONTAINER TYCOON</h1>
+    <button class="btn btn-green" id="btn-play-trigger" onclick="startGame()">ГРАТИ</button>
+    <button class="btn" id="btn-garage-trigger" onclick="openGarage()">ГАРАЖ</button>
+    <button class="btn btn-gray" id="btn-settings-trigger" onclick="openSettings()">НАЛАШТУВАННЯ</button>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="screen interactive hidden" id="settings-screen">
+    <h1 id="txt-settings">НАЛАШТУВАННЯ</h1>
+    <p style="margin-bottom:10px;">Мова / Language / Язык:</p>
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+      <button class="btn" onclick="setLang('uk')">Українська</button>
+      <button class="btn" onclick="setLang('en')">English</button>
+      <button class="btn" onclick="setLang('ru')">Русский</button>
+    </div>
+    <button class="btn btn-gray" onclick="closeSettings()">НАЗАД</button>
+  </div>
+
+  <!-- GARAGE -->
+  <div class="screen interactive hidden" id="garage-screen">
+    <h1 style="margin-bottom:10px;">ГАРАЖ (<span id="gar-used">0</span>/<span id="gar-max">10</span>) <button class="btn btn-green" style="padding:5px 15px; font-size:16px;" onclick="buyGarageSpace()">+ 5 місць (50 000 ₴)</button></h1>
+    <div class="garage-grid" id="garage-list"></div>
+    <button class="btn btn-gray" style="margin-top:20px;" onclick="closeGarage()">НАЗАД</button>
+  </div>
+
+  <!-- CONTAINER MODAL -->
+  <div class="modal interactive hidden" id="container-modal">
+    <h2 id="modal-cont-name">Контейнер #1</h2>
+    <p>Ціна: <b id="modal-cont-price" style="color:#10b981;">120 000 ₴</b></p>
+    <p style="font-size:12px; color:#aaa;">Шанс виграти авто вартістю від 30 000 ₴ до 12 000 000 ₴!</p>
+    <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
+      <button class="btn btn-green" onclick="buyContainer()">КУПИТИ</button>
+      <button class="btn btn-red" onclick="closeContainerModal()">ВИЙТИ</button>
+    </div>
+  </div>
+
+  <!-- MARKET SELL MODAL -->
+  <div class="modal interactive hidden" id="sell-modal">
+    <h2>ПРОДАЖ АВТО</h2>
+    <p id="sell-car-name">Модель Авто</p>
+    <p>Оціночна ціна: <span id="sell-estimated-price">0 ₴</span></p>
+    <input type="number" id="sell-price-input" placeholder="Введіть свою ціну ₴" style="width:80%; padding:10px; font-size:16px; border-radius:8px; border:none; margin:10px 0;">
+    <div style="display:flex; justify-content:center; gap:10px;">
+      <button class="btn btn-green" onclick="confirmSell()">ВИСТАВИТИ</button>
+      <button class="btn btn-red" onclick="closeSellModal()">СКАСУВАТИ</button>
+    </div>
+  </div>
+
+<script>
+// --- GAME STATE ---
+let state = {
+  money: 150000,
+  garageMax: 10,
+  garageCars: [],
+  lang: 'uk',
+  currentContainer: null
+};
+
+const i18n = {
+  uk: { title: "CAR CONTAINER TYCOON", play: "ГРАТИ", garage: "ГАРАЖ", settings: "НАЛАШТУВАННЯ" },
+  en: { title: "CAR CONTAINER TYCOON", play: "PLAY", garage: "GARAGE", settings: "SETTINGS" },
+  ru: { title: "CAR CONTAINER TYCOON", play: "ИГРАТЬ", garage: "ГАРАЖ", settings: "НАСТРОЙКИ" }
+};
+
+const CAR_MODELS = [
+  { name: "Lada Sedan", minVal: 30000, maxVal: 90000, color: 0x999999 },
+  { name: "BMW E36", minVal: 150000, maxVal: 400000, color: 0x111111 },
+  { name: "Audi A6", minVal: 450000, maxVal: 900000, color: 0x335588 },
+  { name: "Porsche 911", minVal: 1500000, maxVal: 4500000, color: 0xcc2222 },
+  { name: "Bugatti Chiron", minVal: 5000000, maxVal: 12000000, color: 0x2288cc }
+];
+
+const CONTAINERS = [
+  { id: 1, price: 120000, pos: [-20, 0, -10], opened: false, car: null },
+  { id: 2, price: 70000, pos: [-10, 0, -10], opened: false, car: null },
+  { id: 3, price: 350000, pos: [0, 0, -10], opened: false, car: null },
+  { id: 4, price: 299999, pos: [10, 0, -10], opened: false, car: null },
+  { id: 5, price: 556000, pos: [20, 0, -10], opened: false, car: null }
+];
+
+// UI update
+function updateUI() {
+  document.getElementById('balance-display').innerText = state.money.toLocaleString() + ' ₴';
+  document.getElementById('gar-used').innerText = state.garageCars.length;
+  document.getElementById('gar-max').innerText = state.garageMax;
+}
+
+function setLang(l) {
+  state.lang = l;
+  document.getElementById('txt-title').innerText = i18n[l].title;
+  document.getElementById('btn-play-trigger').innerText = i18n[l].play;
+  document.getElementById('btn-garage-trigger').innerText = i18n[l].garage;
+  document.getElementById('btn-settings-trigger').innerText = i18n[l].settings;
+}
+
+function openSettings() { document.getElementById('settings-screen').classList.remove('hidden'); }
+function closeSettings() { document.getElementById('settings-screen').classList.add('hidden'); }
+
+function openGarage() {
+  document.getElementById('garage-screen').classList.remove('hidden');
+  const list = document.getElementById('garage-list');
+  list.innerHTML = '';
+  state.garageCars.forEach((car, idx) => {
+    list.innerHTML += `<div class="car-card"><h3>${car.name}</h3><p style="color:#10b981">${car.value.toLocaleString()} ₴</p></div>`;
+  });
+}
+function closeGarage() { document.getElementById('garage-screen').classList.add('hidden'); }
+
+function buyGarageSpace() {
+  if (state.money >= 50000) {
+    state.money -= 50000;
+    state.garageMax += 5;
+    updateUI();
+    openGarage();
+  } else {
+    alert("Недостатньо коштів!");
+  }
+}
+
+// --- THREE.JS ENGINE SETUP ---
+let scene, camera, renderer;
+let player, playerVelocity = new THREE.Vector3();
+let isGrounded = true;
+let activeCar = null;
+
+function init3D() {
+  const container = document.getElementById('canvas-container');
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x1a1a2e);
+
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  container.appendChild(renderer.domElement);
+
+  // Lights
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(20, 40, 20);
+  scene.add(light);
+  scene.add(new THREE.AmbientLight(0x666666));
+
+  // Ground
+  const groundGroup = new THREE.Group();
+  const floorGeo = new THREE.PlaneGeometry(100, 100);
+  const floorMat = new THREE.MeshLambertMaterial({ color: 0x333344 });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  groundGroup.add(floor);
+  scene.add(groundGroup);
+
+  // Player (Capsule)
+  const pGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.8);
+  const pMat = new THREE.MeshLambertMaterial({ color: 0x3b82f6 });
+  player = new THREE.Mesh(pGeo, pMat);
+  player.position.set(0, 0.9, 15);
+  scene.add(player);
+
+  // Containers
+  CONTAINERS.forEach(c => {
+    const group = new THREE.Group();
+    group.position.set(...c.pos);
+
+    const boxGeo = new THREE.BoxGeometry(4, 3, 6);
+    const boxMat = new THREE.MeshLambertMaterial({ color: 0xc2410c });
+    const box = new THREE.Mesh(boxGeo, boxMat);
+    box.position.y = 1.5;
+    group.add(box);
+
+    c.mesh = group;
+    scene.add(group);
+  });
+
+  // Parking & Market Zones
+  createZone(-30, 0, 10, 0x10b981, "ПАРКОВКА (ГАРАЖ)");
+  createZone(30, 0, 10, 0xeab308, "АВТОРИНОК");
+
+  animate();
+}
+
+function createZone(x, y, z, color, text) {
+  const geo = new THREE.RingGeometry(3, 3.5, 32);
+  const mat = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.x = Math.PI / 2;
+  mesh.position.set(x, 0.05, z);
+  scene.add(mesh);
+}
+
+function startGame() {
+  document.getElementById('menu-screen').classList.add('hidden');
+  document.getElementById('game-controls').classList.remove('hidden');
+  if(!scene) init3D();
+}
+
+// Interactivity & Touch Joystick
+let moveVector = { x: 0, y: 0 };
+const joystick = document.getElementById('joystick');
+const stick = document.getElementById('stick');
+
+joystick.addEventListener('touchmove', (e) => {
+  const touch = e.touches[0];
+  const rect = joystick.getBoundingClientRect();
+  let x = touch.clientX - rect.left - 60;
+  let y = touch.clientY - rect.top - 60;
+  const dist = Math.hypot(x, y);
+  if (dist > 40) { x = (x / dist) * 40; y = (y / dist) * 40; }
+  stick.style.transform = `translate(${x}px, ${y}px)`;
+  moveVector.x = x / 40;
+  moveVector.y = y / 40;
+});
+
+joystick.addEventListener('touchend', () => {
+  stick.style.transform = `translate(0px, 0px)`;
+  moveVector = { x: 0, y: 0 };
+});
+
+document.getElementById('btn-jump').addEventListener('click', () => {
+  if (isGrounded) { playerVelocity.y = 0.15; isGrounded = false; }
+});
+
+document.getElementById('btn-action').addEventListener('click', checkInteractions);
+
+function checkInteractions() {
+  // Check container proximity
+  CONTAINERS.forEach(c => {
+    const dist = player.position.distanceTo(new THREE.Vector3(...c.pos));
+    if (dist < 5 && !c.opened) {
+      state.currentContainer = c;
+      document.getElementById('modal-cont-name').innerText = `Контейнер #${c.id}`;
+      document.getElementById('modal-cont-price').innerText = `${c.price.toLocaleString()} ₴`;
+      document.getElementById('container-modal').classList.remove('hidden');
+    }
+  });
+}
+
+function buyContainer() {
+  const c = state.currentContainer;
+  if (!c) return;
+  if (state.money >= c.price) {
+    state.money -= c.price;
+    c.opened = true;
+    updateUI();
+    closeContainerModal();
+
+    // Spawn Random Car inside
+    const carTemplate = CAR_MODELS[Math.floor(Math.random() * CAR_MODELS.length)];
+    const randomVal = Math.floor(Math.random() * (carTemplate.maxVal - carTemplate.minVal + 1)) + carTemplate.minVal;
+    
+    // Spawn Car Mesh
+    const carGeo = new THREE.BoxGeometry(2, 1, 3.5);
+    const carMat = new THREE.MeshLambertMaterial({ color: carTemplate.color });
+    const carMesh = new THREE.Mesh(carGeo, carMat);
+    carMesh.position.set(c.pos[0], 0.5, c.pos[2] + 4);
+    scene.add(carMesh);
+
+    c.carData = { name: carTemplate.name, value: randomVal, mesh: carMesh };
+    alert(`В контейнері знайдено: ${carTemplate.name} вартістю ${randomVal.toLocaleString()} ₴!`);
+  } else {
+    alert("Недостатньо коштів!");
+  }
+}
+
+function closeContainerModal() {
+  document.getElementById('container-modal').classList.add('hidden');
+}
+
+// Game Loop
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Movement
+  player.position.x += moveVector.x * 0.15;
+  player.position.z += moveVector.y * 0.15;
+
+  // Gravity
+  playerVelocity.y -= 0.008;
+  player.position.y += playerVelocity.y;
+  if (player.position.y <= 0.9) {
+    player.position.y = 0.9;
+    playerVelocity.y = 0;
+    isGrounded = true;
+  }
+
+  // Camera Follow
+  camera.position.set(player.position.x, player.position.y + 6, player.position.z + 10);
+  camera.lookAt(player.position);
+
+  renderer.render(scene, camera);
+}
+
+updateUI();
+</script>
+</body>
+</html>
