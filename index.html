@@ -3,77 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, orientation=landscape">
-    <title>Car Container Tycoon 3D</title>
+    <title>Car Container Tycoon 3D Ultra</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        
-        /* Landscape enforce hint */
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #0b0e14; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
         @media screen and (orientation: portrait) {
             #portrait-warning { display: flex !important; }
         }
         #portrait-warning {
-            display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background:#111; color:#fff;
+            display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background:#0b0e14; color:#fff;
             z-index: 9999; justify-content: center; align-items: center; text-align: center; font-size: 20px; padding: 20px;
         }
 
         #canvas-container { width: 100vw; height: 100vh; display: block; touch-action: none; }
 
-        /* UI overlay */
-        .hud { position: absolute; top: 15px; left: 15px; z-index: 100; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        .hud-balance { font-size: 24px; font-weight: bold; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 12px; border: 1px solid #444; }
-
-        .btn-menu { position: absolute; top: 15px; right: 15px; z-index: 100; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-
-        /* Garage Modal */
-        #garage-modal {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80vw; height: 80vh; background: rgba(20, 20, 20, 0.95); border-radius: 20px; border: 2px solid #555;
-            z-index: 200; padding: 20px; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.8); flex-direction: column;
+        /* MAIN MENU */
+        #main-menu {
+            position: fixed; top:0; left:0; width:100vw; height:100vh; background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+            z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white;
         }
-        .garage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 10px; }
-        .garage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; overflow-y: auto; flex: 1; padding-right: 5px; }
-        .car-card { background: #2a2a2a; border-radius: 12px; padding: 12px; text-align: center; border: 1px solid #444; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
-        .car-icon { width: 100%; height: 90px; background: #333; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; font-size: 40px; }
-        .btn-action { padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 5px; width: 100%; font-weight: bold; }
-        .btn-sell { background: #dc3545; }
-        .btn-close { background: #6c757d; padding: 8px 16px; border-radius: 8px; border: none; color: white; cursor: pointer; }
+        #main-menu h1 { font-size: 42px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 25px; color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.5); }
+        .menu-btn { width: 220px; padding: 14px; margin: 8px; font-size: 18px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; transition: 0.2s; background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.4); }
+        .menu-btn:active { transform: scale(0.95); }
+        .menu-btn.alt { background: #334155; }
 
-        /* Controls */
-        .controls-container { position: absolute; bottom: 20px; left: 20px; z-index: 100; display: flex; gap: 15px; }
-        .btn-drive { width: 65px; height: 65px; background: rgba(255,255,255,0.2); border: 2px solid #fff; border-radius: 50%; color: white; font-size: 24px; display: flex; justify-content: center; align-items: center; }
-        .btn-drive:active { background: rgba(255,255,255,0.5); }
-        #exit-car-btn { display: none; position: absolute; bottom: 20px; right: 20px; z-index: 100; padding: 15px 25px; background: #ffc107; color: black; font-weight: bold; border-radius: 12px; border: none; }
+        /* HUD */
+        .hud { position: absolute; top: 15px; left: 15px; z-index: 100; color: #fff; display: flex; gap: 10px; align-items: center; }
+        .hud-balance { font-size: 22px; font-weight: bold; background: rgba(15, 23, 42, 0.85); padding: 8px 18px; border-radius: 12px; border: 1px solid #334155; backdrop-filter: blur(8px); }
+        .btn-top { padding: 10px 16px; background: rgba(30, 41, 59, 0.85); color: white; border: 1px solid #475569; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; backdrop-filter: blur(8px); }
+        .btn-top:active { background: #3b82f6; }
+        .hud-right { position: absolute; top: 15px; right: 15px; z-index: 100; display: flex; gap: 10px; }
+
+        /* JOYSTICK */
+        #joystick-zone { position: absolute; bottom: 30px; left: 30px; width: 120px; height: 120px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; z-index: 150; touch-action: none; }
+        #joystick-stick { position: absolute; top: 35px; left: 35px; width: 50px; height: 50px; background: rgba(56, 189, 248, 0.8); border-radius: 50%; box-shadow: 0 0 10px rgba(56,189,248,0.5); }
+
+        /* MODALS */
+        .modal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 82vw; height: 82vh; background: rgba(15, 23, 42, 0.95); border-radius: 20px; border: 1px solid #334155;
+            z-index: 500; padding: 20px; color: white; box-shadow: 0 20px 50px rgba(0,0,0,0.8); flex-direction: column; backdrop-filter: blur(12px);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .modal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; overflow-y: auto; flex: 1; padding-right: 5px; }
+        .card { background: #1e293b; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #334155; display: flex; flex-direction: column; align-items: center; justify-content: space-between; position: relative; }
+        .card.locked { background: #0f172a; opacity: 0.6; filter: grayscale(1); }
+        .card-icon { width: 100%; height: 75px; background: #0f172a; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 38px; margin-bottom: 6px; }
+        .btn-act { padding: 6px 10px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 13px; margin-top: 4px; }
+        .btn-act.sell { background: #ef4444; }
+        .btn-close { background: #475569; padding: 6px 14px; border-radius: 8px; border: none; color: white; cursor: pointer; font-weight: bold; }
+
+        #exit-car-btn { display: none; position: absolute; bottom: 30px; right: 30px; z-index: 150; padding: 14px 24px; background: #f59e0b; color: #000; font-weight: bold; border-radius: 12px; border: none; font-size: 16px; box-shadow: 0 4px 15px rgba(245,158,11,0.4); }
     </style>
-    <!-- Three.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-    <div id="portrait-warning">🔄 Будь ласка, поверніть телефон у горизонтальне положення!</div>
+    <div id="portrait-warning">🔄 Поверніть телефон горизонтально!</div>
 
+    <!-- MAIN MENU -->
+    <div id="main-menu">
+        <h1>CAR CONTAINER TYCOON 3D</h1>
+        <button class="menu-btn" onclick="startGame()">▶ ГРАТИ</button>
+        <button class="menu-btn alt" onclick="openCollection()">🏆 КОЛЕКЦІЯ</button>
+    </div>
+
+    <!-- HUD -->
     <div class="hud">
-        <div class="hud-balance">Баланс: <span id="balance-display">150,000</span> ₴</div>
+        <div class="hud-balance">💰 <span id="balance-display">250,000</span> ₴</div>
+    </div>
+    <div class="hud-right">
+        <button class="btn-top" onclick="openGarage()">🏎️ Гараж</button>
+        <button class="btn-top" onclick="openCollection()">🏆 Колекція</button>
+        <button class="btn-top" style="background:#ef4444;" onclick="exitToMainMenu()">🚪 Меню</button>
     </div>
 
-    <button class="btn-menu" onclick="openGarage()">🏎️ Гараж</button>
-
-    <div id="garage-modal">
-        <div class="garage-header">
-            <h2>Мої Автомобілі</h2>
-            <button class="btn-close" onclick="closeGarage()">Закрити ✖</button>
-        </div>
-        <div class="garage-grid" id="garage-list"></div>
-    </div>
+    <!-- JOYSTICK -->
+    <div id="joystick-zone"><div id="joystick-stick"></div></div>
 
     <button id="exit-car-btn" onclick="exitCar()">Вийти з авто 🚪</button>
+
+    <!-- MODAL GARAGE -->
+    <div id="garage-modal" class="modal">
+        <div class="modal-header">
+            <h2>🏎️ Мої Автомобілі</h2>
+            <button class="btn-close" onclick="closeModal('garage-modal')">Закрити ✖</button>
+        </div>
+        <div class="modal-grid" id="garage-list"></div>
+    </div>
+
+    <!-- MODAL COLLECTION -->
+    <div id="collection-modal" class="modal">
+        <div class="modal-header">
+            <h2>🏆 Автомобільна Колекція (<span id="col-count">0</span>/20)</h2>
+            <button class="btn-close" onclick="closeModal('collection-modal')">Закрити ✖</button>
+        </div>
+        <div class="modal-grid" id="collection-list"></div>
+    </div>
 
     <div id="canvas-container"></div>
 
     <script>
-        // --- ЗВУКОВА СИСТЕМА (Web Audio API) ---
+        // --- 20 РЕАЛІСТИЧНИХ АВТОМОБІЛІВ ---
+        const ALL_CARS = [
+            { id: 1, name: "Лада 2107", price: 25000, color: 0xffffff, icon: "🚗", speed: 0.22, rarity: "Звичайна" },
+            { id: 2, name: "ЗАЗ Таврія", price: 15000, color: 0x888888, icon: "🚗", speed: 0.18, rarity: "Звичайна" },
+            { id: 3, name: "VW Golf 4", price: 60000, color: 0x1e3a8a, icon: "🚗", speed: 0.28, rarity: "Звичайна" },
+            { id: 4, name: "BMW M5 E39", price: 180000, color: 0x111111, icon: "🏎️", speed: 0.40, rarity: "Рідкісна" },
+            { id: 5, name: "Audi RS7", price: 850000, color: 0x991b1b, icon: "🏎️", speed: 0.52, rarity: "Епічна" },
+            { id: 6, name: "Mercedes W124", price: 110000, color: 0x334155, icon: "🚗", speed: 0.32, rarity: "Звичайна" },
+            { id: 7, name: "Toyota Supra Mk4", price: 650000, color: 0xeab308, icon: "🏎️", speed: 0.48, rarity: "Рідкісна" },
+            { id: 8, name: "Nissan GTR R35", price: 950000, color: 0x475569, icon: "🏎️", speed: 0.55, rarity: "Епічна" },
+            { id: 9, name: "Porsche 911 GT3", price: 1400000, color: 0xd97706, icon: "⚡", speed: 0.58, rarity: "Легендарна" },
+            { id: 10, name: "BMW M3 G80", price: 780000, color: 0x0284c7, icon: "🏎️", speed: 0.50, rarity: "Епічна" },
+            { id: 11, name: "Ford Mustang GT", price: 350000, color: 0xd97706, icon: "🏎️", speed: 0.38, rarity: "Рідкісна" },
+            { id: 12, name: "Subaru Impreza WRX", price: 280000, color: 0x1d4ed8, icon: "🏎️", speed: 0.36, rarity: "Рідкісна" },
+            { id: 13, name: "Mitsubishi Lancer Evo", price: 310000, color: 0xdc2626, icon: "🏎️", speed: 0.37, rarity: "Рідкісна" },
+            { id: 14, name: "Chevrolet Corvette C8", price: 890000, color: 0xb91c1c, icon: "⚡", speed: 0.53, rarity: "Епічна" },
+            { id: 15, name: "Dodge Demon SRT", price: 720000, color: 0x4c1d95, icon: "🏎️", speed: 0.49, rarity: "Епічна" },
+            { id: 16, name: "Lamborghini Huracan", price: 1900000, color: 0x84cc16, icon: "⚡", speed: 0.62, rarity: "Легендарна" },
+            { id: 17, name: "Ferrari F40", price: 2500000, color: 0xdc2626, icon: "⚡", speed: 0.64, rarity: "Легендарна" },
+            { id: 18, name: "McLaren 720S", price: 2100000, color: 0xf97316, icon: "⚡", speed: 0.63, rarity: "Легендарна" },
+            { id: 19, name: "Bugatti Chiron", price: 4500000, color: 0x0f172a, icon: "💎", speed: 0.70, rarity: "Міфічна" },
+            { id: 20, name: "Rolls-Royce Cullinan", price: 3200000, color: 0x334155, icon: "💎", speed: 0.45, rarity: "Міфічна" }
+        ];
+
+        let balance = 250000;
+        let garage = [];
+        let unlockedIds = new Set();
+        let inCar = false;
+        let currentDrivenCarMesh = null;
+        let currentCarData = null;
+
+        // --- ЗВУКИ ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
@@ -82,209 +146,260 @@
             gain.connect(audioCtx.destination);
 
             if (type === 'container') {
-                // Звук відкриття контейнера (важкий металевий скрип + гул)
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.8);
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.8);
+                osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 1.0);
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.0);
+                osc.start(); osc.stop(audioCtx.currentTime + 1.0);
             } else if (type === 'engine') {
-                // Звук мотора
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(80, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(160, audioCtx.currentTime + 0.2);
+                osc.frequency.setValueAtTime(90, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(200, audioCtx.currentTime + 0.3);
                 gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
             }
         }
 
-        // --- ДАНІ ГРИ ---
-        let balance = 150000;
-        let garage = [];
-        let inCar = false;
-        let currentDrivenCar = null;
-
-        const CAR_TYPES = [
-            { name: "Sedan Standard", price: 40000, color: 0x3366cc, icon: "🚗", speed: 0.3, soundPitch: 80 },
-            { name: "Sport Coupe", price: 120000, color: 0xcc0000, icon: "🏎️", speed: 0.5, soundPitch: 120 },
-            { name: "Offroad 4x4", price: 250000, color: 0x228b22, icon: "🛻", speed: 0.35, soundPitch: 60 },
-            { name: "Hypercar V12", price: 1500000, color: 0xffd700, icon: "⚡", speed: 0.7, soundPitch: 180 }
-        ];
-
         // --- THREE.JS СЦЕНА ---
-        const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87ceeb); // Небо
-        scene.fog = new THREE.FogExp2(0x87ceeb, 0.015);
+        scene.background = new THREE.Color(0x38bdf8);
+        scene.fog = new THREE.FogExp2(0x38bdf8, 0.008);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
-        container.appendChild(renderer.domElement);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // Освітлення
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
+        const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambient);
 
-        const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-        sun.position.set(50, 80, 50);
+        const sun = new THREE.DirectionalLight(0xffffff, 0.9);
+        sun.position.set(60, 100, 40);
         sun.castShadow = true;
-        sun.shadow.mapSize.width = 2048;
-        sun.shadow.mapSize.height = 2048;
+        sun.shadow.mapSize.width = 2048; sun.shadow.mapSize.height = 2048;
         scene.add(sun);
 
-        // --- ЛАНДШАФТ (Трава, Дорога, Дерева) ---
-        // Земля з травою
-        const groundGeo = new THREE.PlaneGeometry(300, 300);
-        const groundMat = new THREE.MeshStandardMaterial({ color: 0x4e8d46, roughness: 0.9 });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
+        // --- ЛАНДШАФТ ТА ЗОНИ ---
+        // Зелений ґрунт
+        const ground = new THREE.Mesh(
+            new THREE.PlaneGeometry(500, 500),
+            new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.9 })
+        );
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         scene.add(ground);
 
-        // Асфальтова майданчик
-        const roadGeo = new THREE.PlaneGeometry(60, 60);
-        const roadMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.6 });
-        const road = new THREE.Mesh(roadGeo, roadMat);
-        road.rotation.x = -Math.PI / 2;
-        road.position.y = 0.01;
-        road.receiveShadow = true;
-        scene.add(road);
+        // Головна асфальтова база
+        const asphalt = new THREE.Mesh(
+            new THREE.PlaneGeometry(160, 140),
+            new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 })
+        );
+        asphalt.rotation.x = -Math.PI / 2;
+        asphalt.position.set(0, 0.02, 0);
+        asphalt.receiveShadow = true;
+        scene.add(asphalt);
 
-        // Генерація дерев навколо
-        function createTree(x, z) {
-            const group = new THREE.Group();
-            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c4033 });
-            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 3), trunkMat);
-            trunk.position.y = 1.5;
-            trunk.castShadow = true;
-            group.add(trunk);
+        // ЗОНА 1: Контейнерна площадка (Помаранчева рамка)
+        const zoneContainers = new THREE.Mesh(
+            new THREE.PlaneGeometry(100, 40),
+            new THREE.MeshStandardMaterial({ color: 0x475569 })
+        );
+        zoneContainers.rotation.x = -Math.PI / 2;
+        zoneContainers.position.set(0, 0.03, -35);
+        scene.add(zoneContainers);
 
-            const leavesMat = new THREE.MeshStandardMaterial({ color: 0x2e8b57, roughness: 0.6 });
-            const leaves = new THREE.Mesh(new THREE.ConeGeometry(2, 5, 5), leavesMat);
-            leaves.position.y = 4.5;
-            leaves.castShadow = true;
-            group.add(leaves);
+        // ЗОНА 2: Парковка (Синя рамка)
+        const zoneParking = new THREE.Mesh(
+            new THREE.PlaneGeometry(50, 40),
+            new THREE.MeshStandardMaterial({ color: 0x1e293b })
+        );
+        zoneParking.rotation.x = -Math.PI / 2;
+        zoneParking.position.set(-45, 0.03, 25);
+        scene.add(zoneParking);
 
-            group.position.set(x, 0, z);
-            scene.add(group);
+        // ЗОНА 3: Зона Продажу (Зелена)
+        const zoneSell = new THREE.Mesh(
+            new THREE.PlaneGeometry(40, 40),
+            new THREE.MeshStandardMaterial({ color: 0x14532d })
+        );
+        zoneSell.rotation.x = -Math.PI / 2;
+        zoneSell.position.set(45, 0.03, 25);
+        scene.add(zoneSell);
+
+        // Дерева
+        function addTree(x, z) {
+            const grp = new THREE.Group();
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.6, 3), new THREE.MeshStandardMaterial({ color: 0x451a03 }));
+            trunk.position.y = 1.5; trunk.castShadow = true;
+            grp.add(trunk);
+            const leaves = new THREE.Mesh(new THREE.ConeGeometry(2.5, 6, 6), new THREE.MeshStandardMaterial({ color: 0x166534 }));
+            leaves.position.y = 4.5; leaves.castShadow = true;
+            grp.add(leaves);
+            grp.position.set(x, 0, z);
+            scene.add(grp);
+        }
+        for (let i = 0; i < 50; i++) {
+            let rx = (Math.random() - 0.5) * 350;
+            let rz = (Math.random() - 0.5) * 350;
+            if (Math.abs(rx) > 85 || Math.abs(rz) > 75) addTree(rx, rz);
         }
 
-        for (let i = 0; i < 40; i++) {
-            let rx = (Math.random() - 0.5) * 200;
-            let rz = (Math.random() - 0.5) * 200;
-            if (Math.abs(rx) > 35 || Math.abs(rz) > 35) createTree(rx, rz);
-        }
+        // --- ПЕРСОНАЖ (ЛЮДИНА) ---
+        const player = new THREE.Group();
+        
+        // Тулуб
+        const pBody = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 1.2), new THREE.MeshStandardMaterial({ color: 0x2563eb }));
+        pBody.position.y = 1.0; pBody.castShadow = true;
+        player.add(pBody);
 
-        // --- ГРАВЕЦЬ (ЛЮДИНА) ---
-        const playerGroup = new THREE.Group();
-        const bodyGeo = new THREE.CylinderGeometry(0.4, 0.4, 1.6);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x007bff });
-        const playerBody = new THREE.Mesh(bodyGeo, bodyMat);
-        playerBody.position.y = 0.8;
-        playerBody.castShadow = true;
-        playerGroup.add(playerBody);
+        // Голова
+        const pHead = new THREE.Mesh(new THREE.SphereGeometry(0.28), new THREE.MeshStandardMaterial({ color: 0xfde047 }));
+        pHead.position.y = 1.8; player.add(pHead);
 
-        const headGeo = new THREE.SphereGeometry(0.3);
-        const headMat = new THREE.MeshStandardMaterial({ color: 0xffcc99 });
-        const playerHead = new THREE.Mesh(headGeo, headMat);
-        playerHead.position.y = 1.8;
-        playerGroup.add(playerHead);
+        // Ноги
+        const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.6), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+        legL.position.set(-0.15, 0.3, 0); player.add(legL);
+        const legR = legL.clone(); legR.position.x = 0.15; player.add(legR);
 
-        playerGroup.position.set(0, 0, 15);
-        scene.add(playerGroup);
+        player.position.set(0, 0, 20);
+        scene.add(player);
 
-        // --- СТВОРЕННЯ КОНТЕЙНЕРІВ С ТЕКСТУРАМИ ---
+        // --- КОНТЕЙНЕРИ З ТАЙМЕРОМ 1 ХВ ---
         const containers = [];
-        const containerPositions = [-20, -10, 0, 10, 20];
+        const cCoords = [-35, -18, 0, 18, 35];
 
-        containerPositions.forEach((x, i) => {
-            const cGroup = new THREE.Group();
-            
-            // Корпус контейнера
-            const boxGeo = new THREE.BoxGeometry(4, 4, 8);
-            const boxMat = new THREE.MeshStandardMaterial({ color: 0xd9534f, roughness: 0.4, metalness: 0.3 });
-            const box = new THREE.Mesh(boxGeo, boxMat);
-            box.position.y = 2;
-            box.castShadow = true;
-            cGroup.add(box);
+        cCoords.forEach((x, idx) => {
+            const grp = new THREE.Group();
+            const box = new THREE.Mesh(new THREE.BoxGeometry(6, 4.5, 10), new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.4, roughness: 0.3 }));
+            box.position.y = 2.25; box.castShadow = true;
+            grp.add(box);
 
-            // Двері / Ворота
-            const doorGeo = new THREE.BoxGeometry(3.8, 3.8, 0.2);
-            const doorMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 0.8 });
-            const door = new THREE.Mesh(doorGeo, doorMat);
-            door.position.set(0, 2, 4.01);
-            cGroup.add(door);
+            grp.position.set(x, 0, -35);
+            scene.add(grp);
 
-            cGroup.position.set(x, 0, -15);
-            scene.add(cGroup);
-
-            containers.push({ mesh: cGroup, price: (i + 1) * 50000, opened: false });
+            containers.push({ mesh: grp, price: (idx + 1) * 75000, opened: false, respawnTimer: 0 });
         });
 
-        // --- ОБЕРТАННЯ КАМЕРИ ТА КЕРУВАННЯ ТАЧЕМ ---
-        let isDragging = false;
-        let previousTouchX = 0;
-        let previousTouchY = 0;
-        let cameraYaw = 0;
-        let cameraPitch = 0.3;
+        // --- КЕРУВАННЯ (ДЖОЙСТИК ТА ТАЧ-КАМЕРА) ---
+        let joyX = 0, joyY = 0;
+        const jZone = document.getElementById('joystick-zone');
+        const jStick = document.getElementById('joystick-stick');
 
-        window.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1 && e.target.tagName === 'CANVAS') {
-                isDragging = true;
-                previousTouchX = e.touches[0].clientX;
-                previousTouchY = e.touches[0].clientY;
+        jZone.addEventListener('touchstart', e => handleJoy(e.touches[0]));
+        jZone.addEventListener('touchmove', e => handleJoy(e.touches[0]));
+        jZone.addEventListener('touchend', () => { joyX = 0; joyY = 0; jStick.style.left = '35px'; jStick.style.top = '35px'; });
+
+        function handleJoy(touch) {
+            const rect = jZone.getBoundingClientRect();
+            const dx = touch.clientX - (rect.left + 60);
+            const dy = touch.clientY - (rect.top + 60);
+            const dist = Math.min(Math.hypot(dx, dy), 40);
+            const angle = Math.atan2(dy, dx);
+            joyX = (Math.cos(angle) * dist) / 40;
+            joyY = (Math.sin(angle) * dist) / 40;
+            jStick.style.left = `${35 + joyX * 30}px`;
+            jStick.style.top = `${35 + joyY * 30}px`;
+        }
+
+        // Обертання камери
+        let cameraYaw = 0, cameraPitch = 0.3;
+        let lastTouchX = 0, lastTouchY = 0, isCamDrag = false;
+
+        window.addEventListener('touchstart', e => {
+            if (e.touches[0].clientX > window.innerWidth / 2) {
+                isCamDrag = true; lastTouchX = e.touches[0].clientX; lastTouchY = e.touches[0].clientY;
             }
         });
-
-        window.addEventListener('touchmove', (e) => {
-            if (isDragging && e.touches.length === 1) {
-                const deltaX = e.touches[0].clientX - previousTouchX;
-                const deltaY = e.touches[0].clientY - previousTouchY;
-
-                cameraYaw -= deltaX * 0.005;
-                cameraPitch = Math.max(0.1, Math.min(Math.PI / 3, cameraPitch + deltaY * 0.005));
-
-                previousTouchX = e.touches[0].clientX;
-                previousTouchY = e.touches[0].clientY;
+        window.addEventListener('touchmove', e => {
+            if (isCamDrag) {
+                for (let t of e.touches) {
+                    if (t.clientX > window.innerWidth / 3) {
+                        cameraYaw -= (t.clientX - lastTouchX) * 0.006;
+                        cameraPitch = Math.max(0.1, Math.min(1.0, cameraPitch + (t.clientY - lastTouchY) * 0.006));
+                        lastTouchX = t.clientX; lastTouchY = t.clientY;
+                        break;
+                    }
+                }
             }
         });
+        window.addEventListener('touchend', () => isCamDrag = false);
 
-        window.addEventListener('touchend', () => isDragging = false);
+        // --- 3D СПАВН МАШИНИ ---
+        function createCarMesh(colorHex) {
+            const grp = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.1, 4.8), new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.6, roughness: 0.2 }));
+            body.position.y = 0.75; body.castShadow = true;
+            grp.add(body);
+            const roof = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.8, 2.4), new THREE.MeshStandardMaterial({ color: 0x111111 }));
+            roof.position.set(0, 1.5, -0.2); roof.castShadow = true;
+            grp.add(roof);
+            const wGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.3, 16);
+            const wMat = new THREE.MeshStandardMaterial({ color: 0x0f172a });
+            [[-1.2, 0.45, 1.5], [1.2, 0.45, 1.5], [-1.2, 0.45, -1.5], [1.2, 0.45, -1.5]].forEach(p => {
+                const w = new THREE.Mesh(wGeo, wMat);
+                w.rotation.z = Math.PI / 2; w.position.set(...p);
+                grp.add(w);
+            });
+            return grp;
+        }
 
         // --- ГОЛОВНИЙ ЦИКЛ ОНОВЛЕННЯ ---
+        let clock = new THREE.Clock();
+
         function animate() {
             requestAnimationFrame(animate);
+            const delta = clock.getDelta();
 
-            // Оновлення камери навколо гравця/авто
-            const target = inCar && currentDrivenCar ? currentDrivenCar.position : playerGroup.position;
-            const dist = inCar ? 10 : 7;
-            
-            camera.position.x = target.x + dist * Math.sin(cameraYaw) * Math.cos(cameraPitch);
-            camera.position.z = target.z + dist * Math.cos(cameraYaw) * Math.cos(cameraPitch);
-            camera.position.y = target.y + dist * Math.sin(cameraPitch);
-            camera.lookAt(target.x, target.y + 1, target.z);
+            // Рух Персонажа / Авто
+            const moveSpeed = inCar ? currentCarData.speed * 45 : 12;
+            const rotSpeed = 2.5;
 
-            // Перевірка наближення до контейнерів
+            if (Math.abs(joyX) > 0.1 || Math.abs(joyY) > 0.1) {
+                const targetObj = inCar ? currentDrivenCarMesh : player;
+                targetObj.rotation.y -= joyX * rotSpeed * delta;
+                
+                const moveDist = -joyY * moveSpeed * delta;
+                targetObj.translateZ(moveDist);
+
+                if (inCar) playSound('engine');
+            }
+
+            // Оновлення Камери
+            const camTarget = inCar ? currentDrivenCarMesh.position : player.position;
+            const camDist = inCar ? 12 : 8;
+            camera.position.x = camTarget.x + camDist * Math.sin(cameraYaw) * Math.cos(cameraPitch);
+            camera.position.z = camTarget.z + camDist * Math.cos(cameraYaw) * Math.cos(cameraPitch);
+            camera.position.y = camTarget.y + camDist * Math.sin(cameraPitch);
+            camera.lookAt(camTarget.x, camTarget.y + 1.2, camTarget.z);
+
+            // Таймер респавну контейнерів (1 хв = 60 сек)
             containers.forEach(c => {
-                if (!c.opened && playerGroup.position.distanceTo(c.mesh.position) < 5) {
+                if (c.opened) {
+                    c.respawnTimer -= delta;
+                    if (c.respawnTimer <= 0) {
+                        c.opened = false;
+                        c.mesh.position.y = 0; // Повернути контейнер
+                    }
+                } else if (!inCar && player.position.distanceTo(c.mesh.position) < 6) {
                     if (confirm(`Відкрити контейнер за ${c.price.toLocaleString()} ₴?`)) {
                         if (balance >= c.price) {
                             balance -= c.price;
                             c.opened = true;
+                            c.respawnTimer = 60; // 1 хв очікування
+                            c.mesh.position.y = -20; // Сховати відкритий
+                            
                             playSound('container');
                             document.getElementById('balance-display').innerText = balance.toLocaleString();
-                            
-                            // Выпадание авто
-                            const reward = CAR_TYPES[Math.floor(Math.random() * CAR_TYPES.length)];
-                            garage.push(reward);
-                            alert(`Вітаємо! Ви виграли ${reward.name} (${reward.price.toLocaleString()} ₴)!`);
-                            c.mesh.position.y = -10; // Сховати контейнер
+
+                            // Випадкова машина з 20
+                            const wonCar = ALL_CARS[Math.floor(Math.random() * ALL_CARS.length)];
+                            garage.push(wonCar);
+                            unlockedIds.add(wonCar.id);
+
+                            alert(`🎉 Ви виграли ${wonCar.name} (${wonCar.rarity})! Ціна: ${wonCar.price.toLocaleString()} ₴`);
                         } else {
                             alert("Недостатньо коштів!");
                         }
@@ -296,22 +411,29 @@
         }
         animate();
 
-        // --- ГАРАЖ ТА ІКОНКИ ---
+        // --- МЕНЮ ТА МУДАЛКИ ---
+        function startGame() {
+            document.getElementById('main-menu').style.display = 'none';
+        }
+        function exitToMainMenu() {
+            document.getElementById('main-menu').style.display = 'flex';
+        }
+
         function openGarage() {
             const list = document.getElementById('garage-list');
             list.innerHTML = '';
             if (garage.length === 0) {
-                list.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Гараж порожній. Купуйте контейнери!</p>';
+                list.innerHTML = '<p style="grid-column:1/-1;text-align:center;">Гараж порожній. Купуйте контейнери!</p>';
             } else {
                 garage.forEach((car, index) => {
                     const card = document.createElement('div');
-                    card.className = 'car-card';
+                    card.className = 'card';
                     card.innerHTML = `
-                        <div class="car-icon">${car.icon}</div>
-                        <h3>${car.name}</h3>
-                        <p>Ціна: ${car.price.toLocaleString()} ₴</p>
-                        <button class="btn-action" onclick="spawnCar(${index})">Кататися 🔑</button>
-                        <button class="btn-action btn-sell" onclick="sellCar(${index})">Продати 💰</button>
+                        <div class="card-icon">${car.icon}</div>
+                        <h4>${car.name}</h4>
+                        <p style="font-size:12px;color:#cbd5e1;">${car.price.toLocaleString()} ₴</p>
+                        <button class="btn-act" onclick="spawnCar(${index})">Поїхати 🔑</button>
+                        <button class="btn-act sell" onclick="sellCar(${index})">Продати 💰</button>
                     `;
                     list.appendChild(card);
                 });
@@ -319,7 +441,26 @@
             document.getElementById('garage-modal').style.display = 'flex';
         }
 
-        function closeGarage() { document.getElementById('garage-modal').style.display = 'none'; }
+        function openCollection() {
+            const list = document.getElementById('collection-list');
+            list.innerHTML = '';
+            document.getElementById('col-count').innerText = unlockedIds.size;
+
+            ALL_CARS.forEach(car => {
+                const isUnlocked = unlockedIds.has(car.id);
+                const card = document.createElement('div');
+                card.className = `card ${isUnlocked ? '' : 'locked'}`;
+                card.innerHTML = `
+                    <div class="card-icon">${isUnlocked ? car.icon : '🔒'}</div>
+                    <h4>${isUnlocked ? car.name : '???'}</h4>
+                    <p style="font-size:11px;color:#94a3b8;">${isUnlocked ? car.rarity : 'Не відкрито'}</p>
+                `;
+                list.appendChild(card);
+            });
+            document.getElementById('collection-modal').style.display = 'flex';
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         function sellCar(index) {
             balance += garage[index].price;
@@ -329,53 +470,32 @@
         }
 
         function spawnCar(index) {
-            closeGarage();
-            const carData = garage[index];
-            
-            // Створення 3D машини
-            const carGroup = new THREE.Group();
-            const body = new THREE.Mesh(
-                new THREE.BoxGeometry(2, 1, 4),
-                new THREE.MeshStandardMaterial({ color: carData.color, metalness: 0.6, roughness: 0.2 })
-            );
-            body.position.y = 0.6;
-            body.castShadow = true;
-            carGroup.add(body);
+            closeModal('garage-modal');
+            currentCarData = garage[index];
 
-            // Колеса
-            const wheelGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 16);
-            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-            [[-1, 0.4, 1.2], [1, 0.4, 1.2], [-1, 0.4, -1.2], [1, 0.4, -1.2]].forEach(p => {
-                const w = new THREE.Mesh(wheelGeo, wheelMat);
-                w.rotation.z = Math.PI / 2;
-                w.position.set(...p);
-                carGroup.add(w);
-            });
+            if (currentDrivenCarMesh) scene.remove(currentDrivenCarMesh);
 
-            carGroup.position.copy(playerGroup.position);
-            scene.add(carGroup);
+            currentDrivenCarMesh = createCarMesh(currentCarData.color);
+            currentDrivenCarMesh.position.copy(player.position);
+            scene.add(currentDrivenCarMesh);
 
-            playerGroup.visible = false;
+            player.visible = false;
             inCar = true;
-            currentDrivenCar = carGroup;
             document.getElementById('exit-car-btn').style.display = 'block';
-
-            playSound('engine');
         }
 
         function exitCar() {
-            if (currentDrivenCar) {
-                playerGroup.position.copy(currentDrivenCar.position);
-                playerGroup.position.x += 3;
-                playerGroup.visible = true;
-                scene.remove(currentDrivenCar);
-                currentDrivenCar = null;
+            if (inCar && currentDrivenCarMesh) {
+                player.position.copy(currentDrivenCarMesh.position);
+                player.position.x += 3.5;
+                player.visible = true;
+                scene.remove(currentDrivenCarMesh);
+                currentDrivenCarMesh = null;
                 inCar = false;
                 document.getElementById('exit-car-btn').style.display = 'none';
             }
         }
 
-        // Авто-ресайз
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
