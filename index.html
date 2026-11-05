@@ -3,30 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Car Container Tycoon 3D Auto-Rotate</title>
+    <title>Car Container Tycoon 3D Ultimate Fix</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: #090d16; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
-        /* АВТОМАТИЧНИЙ РОЗВОРОТ ІНТЕРФЕЙСУ ПРИ ВЕРТИКАЛЬНОМУ РЕЖИМІ */
         @media screen and (orientation: portrait) {
             #game-wrapper {
                 transform: rotate(90deg);
                 transform-origin: bottom left;
                 position: absolute;
-                top: -100vw;
-                left: 0;
-                width: 100vh;
-                height: 100vw;
+                top: -100vw; left: 0;
+                width: 100vh; height: 100vw;
             }
         }
-
         @media screen and (orientation: landscape) {
-            #game-wrapper {
-                width: 100vw;
-                height: 100vh;
-                position: relative;
-            }
+            #game-wrapper { width: 100vw; height: 100vh; position: relative; }
         }
 
         #canvas-container { width: 100%; height: 100%; display: block; touch-action: none; }
@@ -36,10 +28,10 @@
             position: absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
             z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white;
         }
-        #main-menu h1 { font-size: 36px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.6); }
+        #main-menu h1 { font-size: 34px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.6); text-align: center; }
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 340px; }
         .menu-btn { padding: 12px; font-size: 15px; font-weight: bold; border-radius: 12px; border: none; cursor: pointer; background: #2563eb; color: white; box-shadow: 0 4px 15px rgba(37,99,235,0.4); }
-        .menu-btn.full { grid-column: span 2; background: #10b981; }
+        .menu-btn.full { grid-column: span 2; background: #10b981; font-size: 18px; padding: 14px; }
         .menu-btn.alt { background: #334155; }
         .menu-btn:active { transform: scale(0.96); }
 
@@ -50,14 +42,14 @@
         .btn-top { padding: 8px 12px; background: rgba(30, 41, 59, 0.85); color: white; border: 1px solid #475569; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; backdrop-filter: blur(8px); }
 
         /* JOYSTICK */
-        #joystick-zone { position: absolute; bottom: 25px; left: 25px; width: 110px; height: 110px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.25); border-radius: 50%; z-index: 150; touch-action: none; }
-        #joystick-stick { position: absolute; top: 30px; left: 30px; width: 50px; height: 50px; background: rgba(56, 189, 248, 0.85); border-radius: 50%; box-shadow: 0 0 12px rgba(56,189,248,0.6); }
+        #joystick-zone { position: absolute; bottom: 25px; left: 25px; width: 110px; height: 110px; background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; z-index: 150; touch-action: none; }
+        #joystick-stick { position: absolute; top: 30px; left: 30px; width: 50px; height: 50px; background: rgba(56, 189, 248, 0.9); border-radius: 50%; box-shadow: 0 0 12px rgba(56,189,248,0.6); pointer-events: none; }
 
         /* MODALS */
         .modal {
             display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; height: 85%; background: rgba(15, 23, 42, 0.95); border-radius: 20px; border: 1px solid #334155;
-            z-index: 500; padding: 20px; color: white; box-shadow: 0 20px 50px rgba(0,0,0,0.9); flex-direction: column; backdrop-filter: blur(14px);
+            width: 85%; height: 85%; background: rgba(15, 23, 42, 0.96); border-radius: 20px; border: 1px solid #334155;
+            z-index: 2000; padding: 20px; color: white; box-shadow: 0 20px 50px rgba(0,0,0,0.9); flex-direction: column; backdrop-filter: blur(14px);
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
         .modal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; overflow-y: auto; flex: 1; padding-right: 5px; }
@@ -86,8 +78,9 @@
                 <button class="menu-btn full" onclick="startGame()">▶ ГРАТИ</button>
                 <button class="menu-btn alt" onclick="openModal('garage-modal')">🏎️ Гараж</button>
                 <button class="menu-btn alt" onclick="openModal('shop-modal')">🏪 Автосалон</button>
+                <button class="menu-btn alt" onclick="openModal('auction-modal')">🔨 Аукціон</button>
                 <button class="menu-btn alt" onclick="openModal('tuning-modal')">🛠️ Тюнінг</button>
-                <button class="menu-btn alt" onclick="openModal('collection-modal')">🏆 Колекція</button>
+                <button class="menu-btn full alt" onclick="openModal('collection-modal')">🏆 Колекція</button>
             </div>
         </div>
 
@@ -98,6 +91,7 @@
         <div class="hud-right">
             <button class="btn-top" onclick="openModal('garage-modal')">🏎️ Гараж</button>
             <button class="btn-top" onclick="openModal('shop-modal')">🏪 Салон</button>
+            <button class="btn-top" onclick="openModal('auction-modal')">🔨 Аукціон</button>
             <button class="btn-top" onclick="openModal('tuning-modal')">🛠️ Тюнінг</button>
             <button class="btn-top" onclick="openModal('collection-modal')">🏆 Колекція</button>
             <button class="btn-top" style="background:#ef4444;" onclick="exitToMainMenu()">🚪 Меню</button>
@@ -122,6 +116,14 @@
                 <button class="btn-close" onclick="closeModal('shop-modal')">Закрити ✖</button>
             </div>
             <div class="modal-grid" id="shop-list"></div>
+        </div>
+
+        <div id="auction-modal" class="modal">
+            <div class="modal-header">
+                <h2>🔨 Спеціальний Аукціон Авто</h2>
+                <button class="btn-close" onclick="closeModal('auction-modal')">Закрити ✖</button>
+            </div>
+            <div class="modal-grid" id="auction-list"></div>
         </div>
 
         <div id="tuning-modal" class="modal">
@@ -156,36 +158,36 @@
 
     <script>
         const ALL_CARS = [
-            { id: 1, name: "Лада 2107", price: 25000, color: 0xffffff, icon: "🚗", speed: 0.22, rarity: "Звичайна" },
-            { id: 2, name: "ЗАЗ Таврія", price: 15000, color: 0x888888, icon: "🚗", speed: 0.18, rarity: "Звичайна" },
-            { id: 3, name: "VW Golf 4", price: 60000, color: 0x1e3a8a, icon: "🚗", speed: 0.28, rarity: "Звичайна" },
-            { id: 4, name: "BMW M5 E39", price: 180000, color: 0x111111, icon: "🏎️", speed: 0.40, rarity: "Рідкісна" },
-            { id: 5, name: "Audi RS7", price: 850000, color: 0x991b1b, icon: "🏎️", speed: 0.52, rarity: "Епічна" },
-            { id: 6, name: "Mercedes W124", price: 110000, color: 0x334155, icon: "🚗", speed: 0.32, rarity: "Звичайна" },
-            { id: 7, name: "Toyota Supra Mk4", price: 650000, color: 0xeab308, icon: "🏎️", speed: 0.48, rarity: "Рідкісна" },
-            { id: 8, name: "Nissan GTR R35", price: 950000, color: 0x475569, icon: "🏎️", speed: 0.55, rarity: "Епічна" },
-            { id: 9, name: "Porsche 911 GT3", price: 1400000, color: 0xd97706, icon: "⚡", speed: 0.58, rarity: "Легендарна" },
-            { id: 10, name: "BMW M3 G80", price: 780000, color: 0x0284c7, icon: "🏎️", speed: 0.50, rarity: "Епічна" },
-            { id: 11, name: "Ford Mustang GT", price: 350000, color: 0xd97706, icon: "🏎️", speed: 0.38, rarity: "Рідкісна" },
-            { id: 12, name: "Subaru Impreza", price: 280000, color: 0x1d4ed8, icon: "🏎️", speed: 0.36, rarity: "Рідкісна" },
-            { id: 13, name: "Mitsubishi Lancer Evo", price: 310000, color: 0xdc2626, icon: "🏎️", speed: 0.37, rarity: "Рідкісна" },
-            { id: 14, name: "Chevrolet Corvette", price: 890000, color: 0xb91c1c, icon: "⚡", speed: 0.53, rarity: "Епічна" },
-            { id: 15, name: "Dodge Demon SRT", price: 720000, color: 0x4c1d95, icon: "🏎️", speed: 0.49, rarity: "Епічна" },
-            { id: 16, name: "Lamborghini Huracan", price: 1900000, color: 0x84cc16, icon: "⚡", speed: 0.62, rarity: "Легендарна" },
-            { id: 17, name: "Ferrari F40", price: 2500000, color: 0xdc2626, icon: "⚡", speed: 0.64, rarity: "Легендарна" },
-            { id: 18, name: "McLaren 720S", price: 2100000, color: 0xf97316, icon: "⚡", speed: 0.63, rarity: "Легендарна" },
-            { id: 19, name: "Bugatti Chiron", price: 4500000, color: 0x0f172a, icon: "💎", speed: 0.70, rarity: "Міфічна" },
-            { id: 20, name: "Rolls-Royce Cullinan", price: 3200000, color: 0x334155, icon: "💎", speed: 0.45, rarity: "Міфічна" },
-            { id: 21, name: "BMW M3 E46", price: 210000, color: 0x94a3b8, icon: "🏎️", speed: 0.41, rarity: "Рідкісна" },
-            { id: 22, name: "Nissan Skyline R34", price: 790000, color: 0x2563eb, icon: "🏎️", speed: 0.51, rarity: "Епічна" },
-            { id: 23, name: "Audi RS6 Avant", price: 920000, color: 0x000000, icon: "🏎️", speed: 0.54, rarity: "Епічна" },
-            { id: 24, name: "Mercedes-AMG GT", price: 1350000, color: 0xeab308, icon: "⚡", speed: 0.59, rarity: "Легендарна" },
-            { id: 25, name: "Lamborghini Urus", price: 1600000, color: 0xfacc15, icon: "⚡", speed: 0.57, rarity: "Легендарна" },
-            { id: 26, name: "Tesla Cybertruck", price: 1100000, color: 0x64748b, icon: "⚡", speed: 0.56, rarity: "Епічна" },
-            { id: 27, name: "Ferrari SF90", price: 2900000, color: 0xef4444, icon: "💎", speed: 0.66, rarity: "Легендарна" },
-            { id: 28, name: "Bugatti Divo", price: 5800000, color: 0x0284c7, icon: "💎", speed: 0.72, rarity: "Міфічна" },
-            { id: 29, name: "Koenigsegg Jesko", price: 6500000, color: 0xffffff, icon: "💎", speed: 0.75, rarity: "Міфічна" },
-            { id: 30, name: "Rolls-Royce Phantom", price: 4100000, color: 0x1e293b, icon: "💎", speed: 0.44, rarity: "Міфічна" }
+            { id: 1, name: "Лада 2107", price: 25000, color: 0xffffff, icon: "🚗", speed: 0.25, rarity: "Звичайна" },
+            { id: 2, name: "ЗАЗ Таврія", price: 15000, color: 0x888888, icon: "🚗", speed: 0.20, rarity: "Звичайна" },
+            { id: 3, name: "VW Golf 4", price: 60000, color: 0x1e3a8a, icon: "🚗", speed: 0.30, rarity: "Звичайна" },
+            { id: 4, name: "BMW M5 E39", price: 180000, color: 0x111111, icon: "🏎️", speed: 0.42, rarity: "Рідкісна" },
+            { id: 5, name: "Audi RS7", price: 850000, color: 0x991b1b, icon: "🏎️", speed: 0.55, rarity: "Епічна" },
+            { id: 6, name: "Mercedes W124", price: 110000, color: 0x334155, icon: "🚗", speed: 0.34, rarity: "Звичайна" },
+            { id: 7, name: "Toyota Supra Mk4", price: 650000, color: 0xeab308, icon: "🏎️", speed: 0.50, rarity: "Рідкісна" },
+            { id: 8, name: "Nissan GTR R35", price: 950000, color: 0x475569, icon: "🏎️", speed: 0.58, rarity: "Епічна" },
+            { id: 9, name: "Porsche 911 GT3", price: 1400000, color: 0xd97706, icon: "⚡", speed: 0.62, rarity: "Легендарна" },
+            { id: 10, name: "BMW M3 G80", price: 780000, color: 0x0284c7, icon: "🏎️", speed: 0.52, rarity: "Епічна" },
+            { id: 11, name: "Ford Mustang GT", price: 350000, color: 0xd97706, icon: "🏎️", speed: 0.40, rarity: "Рідкісна" },
+            { id: 12, name: "Subaru Impreza", price: 280000, color: 0x1d4ed8, icon: "🏎️", speed: 0.38, rarity: "Рідкісна" },
+            { id: 13, name: "Mitsubishi Lancer Evo", price: 310000, color: 0xdc2626, icon: "🏎️", speed: 0.39, rarity: "Рідкісна" },
+            { id: 14, name: "Chevrolet Corvette", price: 890000, color: 0xb91c1c, icon: "⚡", speed: 0.56, rarity: "Епічна" },
+            { id: 15, name: "Dodge Demon SRT", price: 720000, color: 0x4c1d95, icon: "🏎️", speed: 0.51, rarity: "Епічна" },
+            { id: 16, name: "Lamborghini Huracan", price: 1900000, color: 0x84cc16, icon: "⚡", speed: 0.65, rarity: "Легендарна" },
+            { id: 17, name: "Ferrari F40", price: 2500000, color: 0xdc2626, icon: "⚡", speed: 0.68, rarity: "Легендарна" },
+            { id: 18, name: "McLaren 720S", price: 2100000, color: 0xf97316, icon: "⚡", speed: 0.67, rarity: "Легендарна" },
+            { id: 19, name: "Bugatti Chiron", price: 4500000, color: 0x0f172a, icon: "💎", speed: 0.74, rarity: "Міфічна" },
+            { id: 20, name: "Rolls-Royce Cullinan", price: 3200000, color: 0x334155, icon: "💎", speed: 0.48, rarity: "Міфічна" },
+            { id: 21, name: "BMW M3 E46", price: 210000, color: 0x94a3b8, icon: "🏎️", speed: 0.43, rarity: "Рідкісна" },
+            { id: 22, name: "Nissan Skyline R34", price: 790000, color: 0x2563eb, icon: "🏎️", speed: 0.53, rarity: "Епічна" },
+            { id: 23, name: "Audi RS6 Avant", price: 920000, color: 0x000000, icon: "🏎️", speed: 0.57, rarity: "Епічна" },
+            { id: 24, name: "Mercedes-AMG GT", price: 1350000, color: 0xeab308, icon: "⚡", speed: 0.61, rarity: "Легендарна" },
+            { id: 25, name: "Lamborghini Urus", price: 1600000, color: 0xfacc15, icon: "⚡", speed: 0.60, rarity: "Легендарна" },
+            { id: 26, name: "Tesla Cybertruck", price: 1100000, color: 0x64748b, icon: "⚡", speed: 0.59, rarity: "Епічна" },
+            { id: 27, name: "Ferrari SF90", price: 2900000, color: 0xef4444, icon: "💎", speed: 0.70, rarity: "Легендарна" },
+            { id: 28, name: "Bugatti Divo", price: 5800000, color: 0x0284c7, icon: "💎", speed: 0.76, rarity: "Міфічна" },
+            { id: 29, name: "Koenigsegg Jesko", price: 6500000, color: 0xffffff, icon: "💎", speed: 0.80, rarity: "Міфічна" },
+            { id: 30, name: "Rolls-Royce Phantom", price: 4100000, color: 0x1e293b, icon: "💎", speed: 0.46, rarity: "Міфічна" }
         ];
 
         let balance = 300000;
@@ -195,26 +197,27 @@
         let currentDrivenCarMesh = null;
         let currentCarData = null;
 
+        // --- ЗВУКИ ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            osc.connect(gain); gain.connect(audioCtx.destination);
             if (type === 'container') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(35, audioCtx.currentTime + 0.9);
-                gain.gain.setValueAtTime(0.4, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.9);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.9);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.8);
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.8);
             } else if (type === 'engine') {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(85, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(190, audioCtx.currentTime + 0.2);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(90, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(210, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.15);
             }
         }
 
+        // --- 3D СЦЕНА ---
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x38bdf8);
         scene.fog = new THREE.FogExp2(0x38bdf8, 0.007);
@@ -225,11 +228,12 @@
         renderer.shadowMap.enabled = true;
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        const ambient = new THREE.AmbientLight(0xffffff, 0.7); scene.add(ambient);
+        const ambient = new THREE.AmbientLight(0xffffff, 0.75); scene.add(ambient);
         const sun = new THREE.DirectionalLight(0xffffff, 0.9);
         sun.position.set(60, 100, 40); sun.castShadow = true;
         sun.shadow.mapSize.width = 2048; sun.shadow.mapSize.height = 2048; scene.add(sun);
 
+        // Покриття
         const ground = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.9 }));
         ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
 
@@ -241,60 +245,46 @@
             line.rotation.x = -Math.PI / 2; line.position.set(i, 0.04, 0); scene.add(line);
         }
 
-        function addLampPost(x, z) {
-            const grp = new THREE.Group();
-            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 8), new THREE.MeshStandardMaterial({ color: 0x475569 }));
-            pole.position.y = 4; grp.add(pole);
-            const light = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
-            light.position.set(0, 8, 0); grp.add(light);
-            grp.position.set(x, 0, z); scene.add(grp);
-        }
-        addLampPost(-70, -20); addLampPost(70, -20); addLampPost(-70, 40); addLampPost(70, 40);
-
-        function addTree(x, z) {
-            const grp = new THREE.Group();
-            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.6, 3), new THREE.MeshStandardMaterial({ color: 0x451a03 }));
-            trunk.position.y = 1.5; trunk.castShadow = true; grp.add(trunk);
-            const leaves = new THREE.Mesh(new THREE.DodecahedronGeometry(2.5), new THREE.MeshStandardMaterial({ color: 0x166534, roughness: 0.8 }));
-            leaves.position.y = 4.5; leaves.castShadow = true; grp.add(leaves);
-            grp.position.set(x, 0, z); scene.add(grp);
-        }
-        for (let i = 0; i < 50; i++) {
-            let rx = (Math.random() - 0.5) * 360;
-            let rz = (Math.random() - 0.5) * 360;
-            if (Math.abs(rx) > 90 || Math.abs(rz) > 80) addTree(rx, rz);
-        }
-
+        // Персонаж
         const player = new THREE.Group();
         const pBody = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 1.2), new THREE.MeshStandardMaterial({ color: 0x2563eb }));
         pBody.position.y = 1.0; pBody.castShadow = true; player.add(pBody);
         const pHead = new THREE.Mesh(new THREE.SphereGeometry(0.28), new THREE.MeshStandardMaterial({ color: 0xfde047 }));
         pHead.position.y = 1.8; player.add(pHead);
-        const pCap = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.1), new THREE.MeshStandardMaterial({ color: 0xdc2626 }));
-        pCap.position.y = 2.05; player.add(pCap);
         const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.6), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
         legL.position.set(-0.15, 0.3, 0); player.add(legL);
         const legR = legL.clone(); legR.position.x = 0.15; player.add(legR);
         player.position.set(0, 0, 25); scene.add(player);
 
+        // АНІМОВАНІ КОНТЕЙНЕРИ
         const containers = [];
         const cCoords = [-45, -22.5, 0, 22.5, 45];
         cCoords.forEach((x, idx) => {
             const grp = new THREE.Group();
-            const box = new THREE.Mesh(new THREE.BoxGeometry(7, 4.5, 11), new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.5, roughness: 0.3 }));
+            
+            // Корпус
+            const box = new THREE.Mesh(new THREE.BoxGeometry(7, 4.5, 11), new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.4, roughness: 0.3 }));
             box.position.y = 2.25; box.castShadow = true; grp.add(box);
+
+            // Двері
+            const door = new THREE.Mesh(new THREE.BoxGeometry(6.8, 4.3, 0.2), new THREE.MeshStandardMaterial({ color: 0x92400e }));
+            door.position.set(0, 2.25, 5.5);
+            grp.add(door);
+
             grp.position.set(x, 0, -40); scene.add(grp);
-            containers.push({ mesh: grp, price: (idx + 1) * 80000, opened: false, respawnTimer: 0 });
+            containers.push({ mesh: grp, door: door, price: (idx + 1) * 80000, opened: false, respawnTimer: 0 });
         });
 
+        // ПРАВИЛЬНИЙ ДЖОЙСТИК (РУХ ВІДПОВІДНО КАМЕРИ)
         let joyX = 0, joyY = 0;
         const jZone = document.getElementById('joystick-zone');
         const jStick = document.getElementById('joystick-stick');
-        jZone.addEventListener('touchstart', e => handleJoy(e.touches[0]));
-        jZone.addEventListener('touchmove', e => handleJoy(e.touches[0]));
+
+        jZone.addEventListener('touchstart', e => updateJoy(e.touches[0]));
+        jZone.addEventListener('touchmove', e => updateJoy(e.touches[0]));
         jZone.addEventListener('touchend', () => { joyX = 0; joyY = 0; jStick.style.left = '30px'; jStick.style.top = '30px'; });
 
-        function handleJoy(touch) {
+        function updateJoy(touch) {
             const rect = jZone.getBoundingClientRect();
             const dx = touch.clientX - (rect.left + 55);
             const dy = touch.clientY - (rect.top + 55);
@@ -305,6 +295,7 @@
             jStick.style.left = `${30 + joyX * 25}px`; jStick.style.top = `${30 + joyY * 25}px`;
         }
 
+        // Обертання камера
         let cameraYaw = 0, cameraPitch = 0.35, lastTouchX = 0, lastTouchY = 0, isCamDrag = false;
         window.addEventListener('touchstart', e => {
             if (e.touches[0].clientX > window.innerWidth / 2) {
@@ -353,11 +344,16 @@
             requestAnimationFrame(animate);
             const delta = clock.getDelta();
 
-            const moveSpeed = inCar ? currentCarData.speed * 48 : 12;
-            if (Math.abs(joyX) > 0.1 || Math.abs(joyY) > 0.1) {
+            // ЗПРАВИЛЬНИЙ РУХ ПО НАПРЯМКУ КАМЕРЫ
+            if (Math.abs(joyX) > 0.05 || Math.abs(joyY) > 0.05) {
                 const targetObj = inCar ? currentDrivenCarMesh : player;
-                targetObj.rotation.y -= joyX * 2.5 * delta;
-                targetObj.translateZ(-joyY * moveSpeed * delta);
+                const moveSpeed = inCar ? currentCarData.speed * 50 : 14;
+
+                // Розрахунок глобального кута руху відносно камери
+                const moveAngle = Math.atan2(joyX, joyY) + cameraYaw;
+                targetObj.rotation.y = moveAngle;
+                targetObj.translateZ(moveSpeed * delta);
+
                 if (inCar) playSound('engine');
             }
 
@@ -368,19 +364,25 @@
             camera.position.y = camTarget.y + camDist * Math.sin(cameraPitch);
             camera.lookAt(camTarget.x, camTarget.y + 1.2, camTarget.z);
 
+            // Логіка контейнерів
             containers.forEach(c => {
                 if (c.opened) {
                     c.respawnTimer -= delta;
-                    if (c.respawnTimer <= 0) { c.opened = false; c.mesh.position.y = 0; }
+                    if (c.respawnTimer <= 0) {
+                        c.opened = false;
+                        c.door.position.y = 2.25; // Закрити двері назад
+                    }
                 } else if (!inCar && player.position.distanceTo(c.mesh.position) < 6) {
                     if (confirm(`Відкрити контейнер за ${c.price.toLocaleString()} ₴?`)) {
                         if (balance >= c.price) {
-                            balance -= c.price; c.opened = true; c.respawnTimer = 60; c.mesh.position.y = -20;
+                            balance -= c.price; c.opened = true; c.respawnTimer = 60;
+                            c.door.position.y = 8; // АНІМАЦІЯ ВІДКРИТТЯ ДВЕРЕЙ ВГОРО
+                            
                             playSound('container');
                             document.getElementById('balance-display').innerText = balance.toLocaleString();
                             const wonCar = ALL_CARS[Math.floor(Math.random() * ALL_CARS.length)];
                             garage.push({ ...wonCar }); unlockedIds.add(wonCar.id);
-                            alert(`🎉 Ви виграли ${wonCar.name} (${wonCar.rarity})!`);
+                            alert(`🎉 Ви відкрили контейнер і знайшли ${wonCar.name} (${wonCar.rarity})!`);
                         } else alert("Недостатньо коштів!");
                     }
                 }
@@ -390,11 +392,13 @@
         }
         animate();
 
+        // ЛОГІКА МЕНЮ ТА ВІКОН
         function startGame() { document.getElementById('main-menu').style.display = 'none'; }
         function exitToMainMenu() { document.getElementById('main-menu').style.display = 'flex'; }
         function openModal(id) {
             if (id === 'garage-modal') renderGarage();
             if (id === 'shop-modal') renderShop();
+            if (id === 'auction-modal') renderAuction();
             if (id === 'collection-modal') renderCollection();
             document.getElementById(id).style.display = 'flex';
         }
@@ -432,6 +436,22 @@
             });
         }
 
+        function renderAuction() {
+            const list = document.getElementById('auction-list'); list.innerHTML = '';
+            const auctionCars = [ALL_CARS[3], ALL_CARS[8], ALL_CARS[18], ALL_CARS[28]];
+            auctionCars.forEach(car => {
+                const discountPrice = Math.floor(car.price * 0.75);
+                const card = document.createElement('div'); card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-icon">${car.icon}</div>
+                    <h4>${car.name} (Лот)</h4>
+                    <p style="font-size:12px;color:#10b981;">Знижка: ${discountPrice.toLocaleString()} ₴</p>
+                    <button class="btn-act buy" onclick="buyAuctionCar(${car.id}, ${discountPrice})">Зробити ставку 🔨</button>
+                `;
+                list.appendChild(card);
+            });
+        }
+
         function renderCollection() {
             const list = document.getElementById('collection-list'); list.innerHTML = '';
             document.getElementById('col-count').innerText = unlockedIds.size;
@@ -456,6 +476,17 @@
                 alert(`Вітаємо з покупкою ${car.name}!`);
                 renderShop();
             } else alert("Недостатньо грошей!");
+        }
+
+        function buyAuctionCar(id, price) {
+            const car = ALL_CARS.find(c => c.id === id);
+            if (balance >= price) {
+                balance -= price;
+                document.getElementById('balance-display').innerText = balance.toLocaleString();
+                garage.push({ ...car }); unlockedIds.add(car.id);
+                alert(`Вітаємо! Ви виграли лот ${car.name} на аукціоні!`);
+                closeModal('auction-modal');
+            } else alert("Недостатньо грошей для ставки!");
         }
 
         function sellCar(index) {
@@ -488,7 +519,7 @@
             if (inCar && currentDrivenCarMesh) {
                 currentDrivenCarMesh.children[0].material.color.setHex(hexColor);
                 currentCarData.color = hexColor;
-                alert("Колір автомобіля успішно змінено!");
+                alert("Колір успішно змінено!");
                 closeModal('tuning-modal');
             } else alert("Спочатку сядьте в авто з гаража!");
         }
